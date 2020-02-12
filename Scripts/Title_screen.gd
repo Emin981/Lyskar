@@ -4,6 +4,9 @@ onready var ts_color_rect : ColorRect = $CanvasLayer/ColorRect
 onready var ts_animations : AnimationPlayer = $CanvasLayer/animations
 onready var ts_commands : VBoxContainer = $Commands/VBoxContainer
 onready var ts_canvas_com : CanvasLayer = $Commands
+onready var ts_bgm : AudioStreamPlayer = $bgm
+onready var ts_sfx : AudioStreamPlayer = $sfx
+var c_move_sfx : Resource = preload("res://SFX/cursor_move.ogg")
 var ts_is_active : bool = false
 var labels : Array = []
 var cursor_scene = preload("res://Scenes/Cursor.tscn")
@@ -11,6 +14,7 @@ var cursor = cursor_scene.instance()
 var index = 0
 
 func _ready():
+	ts_bgm.play()
 	ts_color_rect.color = Color(0,0,0,1)
 	ts_animations.play("fade_in")
 	for node in ts_commands.get_children():
@@ -34,6 +38,9 @@ func create_cursor():
 
 func set_cursor(new_index : int):
 	if new_index >= 0 and new_index < len(labels):
+		if Input.is_action_just_pressed("ui_up") or Input.is_action_just_pressed("ui_down"):
+			ts_sfx.stream = c_move_sfx
+			ts_sfx.play()
 		index = new_index
 		var selected_command = labels[index]
 		cursor.rect_global_position = Vector2(
@@ -41,6 +48,7 @@ func set_cursor(new_index : int):
 			selected_command.rect_global_position.y + 25
 		)
 	pass
+
 
 func _process(delta):
 	if ts_is_active:
